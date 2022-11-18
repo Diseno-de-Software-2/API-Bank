@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const credentials = require('../db_credentials');
 const axios = require('axios')
 const mysql = require('mysql2')
 const HOST = 'localhost' // Change to actual host
@@ -11,8 +12,8 @@ var setTerminalTitle = require('set-terminal-title');
 setTerminalTitle('API Bank', { verbose: true });
 const PORT = 5000 || process.env.PORT
 const DB_NAME = 'sistemabancos'
-const DB_USER = 'root'  // Change to your DB user
-const DB_PASSWORD = 'root' // Change to your DB password
+const DB_USER = credentials['DB_USER']
+const DB_PASSWORD = credentials['DB_PASSWORD']
 
 app.use(express.json())
 app.use(cors())

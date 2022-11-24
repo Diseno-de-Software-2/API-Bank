@@ -85,15 +85,17 @@ app.post('/transaccion-tarjeta', (req, res) => {
     const enabled = monitor.transacciones.enabled
     if (enabled) {
         const body = req.body
-        const { numero_tarjeta, numero_cuenta, monto } = body
+        const { paymentMethod, numero_cuenta, monto } = body
         let id_origen
         let id_destino
+
+        console.log(paymentMethod)
 
         const date = new Date()
         const fecha = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
         const hora = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 
-        let query = `SELECT * FROM tarjeta WHERE numero = ${numero_tarjeta}`
+        let query = `SELECT * FROM tarjeta WHERE numero = ${paymentMethod.numero} AND cvv = ${paymentMethod.codigo} AND fecha_expiracion = '${paymentMethod.fecha}' AND proveedor = '${paymentMethod.proveedor}'`
         connection.query(query, (error, result) => {
             console.log(query)
             console.log(result)
@@ -155,18 +157,21 @@ app.post('/transaccion-cuenta', (req, res) => {
     const enabled = monitor.transacciones.enabled
     if (enabled) {
         const body = req.body
-        const { numero_cuenta_origen, numero_cuenta_destino, monto } = body
+        const { paymentMethod, numero_cuenta_destino, monto } = body
         let id_origen
         let id_destino
+
+        console.log(paymentMethod)
 
         const date = new Date()
         const fecha = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
         const hora = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 
         // verificar que la cuenta origen exista y tenga saldo
-        let query = `SELECT * FROM cuenta WHERE numero = ${numero_cuenta_origen}`
+        let query = `SELECT * FROM cuenta INNER JOIN banco ON id_banco = banco.id WHERE numero = ${paymentMethod.numero} AND nombre_titular = '${paymentMethod.nombre}' AND email = '${paymentMethod.email}' AND banco.nombre = '${paymentMethod.banco}'`
         connection.query(query, (error, result) => {
             if (error) throw error
+            console.log(result)
             if (result.length > 0) {
                 const cuenta_origen = result[0]
                 id_origen = cuenta_origen.id
